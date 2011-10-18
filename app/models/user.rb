@@ -13,27 +13,41 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :email
   validates_presence_of :last_4_digits
 
+  def stripe_description
+    "#{name}: #{email}"
+  end
+
   def update_stripe
-    if stripe_token.present?
-      if stripe_id.nil?
-        customer = Stripe::Customer.create(
-          :description => email,
-          :card => stripe_token
-        )
-        self.last_4_digits = customer.active_card.last4
-        response = customer.update_subscription({:plan => "premium"})
-      else
-        customer = Stripe::Customer.retrieve(stripe_id)
-        customer.card = stripe_token
-        customer.save
-        self.last_4_digits = customer.active_card.last4
+    if stripe_id.nil?
+      if !stripe_token.present?
+        raise "We're doing something wrong -- this isn't supposed to happen"
       end
 
-      self.stripe_id = customer.id
-      self.stripe_token = nil
-    elsif last_4_digits_changed?
-      self.last_4_digits = last_4_digits_was
+      customer = Stripe::Customer.create(
+        :email => email,
+        :description => stripe_description,
+        :card => stripe_token
+      )
+      self.last_4_digits = customer.active_card.last4
+      response = customer.update_subscription({:plan => "premium"})
+    else
+      customer = Stripe::Customer.retrieve(stripe_id)
+
+      if stripe_token.present?
+        customer.card = stripe_token
+      end
+
+      # in case they've changed
+      customer.email = email
+      customer.description = stripe_description
+
+      customer.save
+
+      self.last_4_digits = customer.active_card.last4
     end
+
+    self.stripe_id = customer.id
+    self.stripe_token = nil
   end
 
   def self.authenticate(email, password)
