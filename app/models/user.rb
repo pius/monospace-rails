@@ -13,11 +13,16 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :email
   validates_presence_of :last_4_digits
 
+  def stripe_description
+    "#{name}: #{email}"
+  end
+
   def update_stripe
     if stripe_token.present?
       if stripe_id.nil?
         customer = Stripe::Customer.create(
-          :description => email,
+          :email => email,
+          :description => stripe_description,
           :card => stripe_token
         )
         self.last_4_digits = customer.active_card.last4
@@ -25,6 +30,11 @@ class User < ActiveRecord::Base
       else
         customer = Stripe::Customer.retrieve(stripe_id)
         customer.card = stripe_token
+
+        # in case they've changed
+        customer.email = email
+        customer.description = stripe_description
+
         customer.save
         self.last_4_digits = customer.active_card.last4
       end
