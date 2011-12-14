@@ -1,0 +1,35 @@
+<div class="page-header">
+  <h1>Sign In</h1>
+</div>
+
+<div class="row">
+  <div class="span6 columns">
+    <%= form_tag sessions_path, :class => 'form-stacked' do %>
+      <fieldset>
+        <% if flash.alert %>
+          <div class="alert-message block-message error">
+            <p><%= flash.alert %></p>
+          </div>
+        <% end %>
+    
+        <div class="clearfix">
+          <%= label_tag :email %>
+          <div class="input">
+            <%= text_field_tag :email, params[:email], :class => 'field' %>
+          </div>
+        </div>
+
+        <div class="clearfix">
+          <%= label_tag :password %>
+          <div class="input">
+            <%= password_field_tag :password, params[:password], :class => 'field' %>
+          </div>
+        </div>
+
+        <div class="actions">
+          <%= submit_tag "Sign In", :class => "btn primary" %>
+        </div>
+      </fieldset>
+    <% end %>
+  </div>
+</div>
