@@ -1,0 +1,7 @@
+<% if current_user %>
+  <p>Shouldn't you be coding?</p>
+  <p><%= link_to "Edit Profile", edit_profile_path %>
+<% else %>
+  <p>Welcome to Monospace, the social network for developers. Membership is a mere $20 a month.</p>
+  <p><%= link_to "Join Today!", register_path %></p>
+<% end %>
