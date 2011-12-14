@@ -1,0 +1,106 @@
+<div class="row">
+  <div class="span6 columns">
+    <fieldset>
+      <%= form_for user, :html => {:class => 'form-stacked'} do |f| %>
+        <% if user.errors.any? %>
+          <div class="alert-message block-message error">
+            <p><%= "#{pluralize(user.errors.count, "problem")} with your registration:" %></p>
+            <div class="errors">
+              <% user.errors.full_messages.each do |msg| %>
+                <p><%= msg %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="clearfix">
+          <%= f.label :name %>
+          <div class="input">
+            <%= f.text_field :name, :class => "field" %>
+          </div>
+        </div>
+
+        <div class="clearfix">
+          <%= f.label :email %>
+          <div class="input">
+            <%= f.text_field :email, :class => "field" %>
+          </div>
+        </div>
+
+        <div class="clearfix">
+          <%= f.label :password %>
+          <div class="input">
+            <%= f.password_field :password, :class => "field" %>
+            <% if defined? editing %>
+              <span class="help-block">Leave blank to keep your current password</span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="clearfix">
+          <%= f.label :password_confirmation %>
+          <div class="input">
+            <%= f.password_field :password_confirmation, :class => "field" %>
+          </div>
+
+          <%= f.hidden_field :stripe_token %>
+          <%= f.hidden_field :last_4_digits %>
+        </div>
+
+        <% if user.last_4_digits %>
+          <div id="change-card" class="clearfix">
+            <label>Card</label>
+            <div class="input">
+              <span>
+                Using card ending with 
+                <%= user.last_4_digits %> 
+                <%= link_to "(change)", "#" %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+
+        <noscript>
+          <p>This form requires Javascript to use</p>
+        </noscript>
+
+        <div id="credit-card" style="<%= user.last_4_digits ? "display:none" : "display:block" %>">
+          <div id="credit-card-errors" style="display:none">
+            <div id="stripe-error-message" class="alert-message block-message error">
+            </div>
+          </div>
+
+          <!-- these fields are disabled before submission and are never transmitted back to rails -->
+          <div class="clearfix">
+            <%= label_tag :credit_card_number %>
+            <div class="input">
+              <%= text_field_tag :credit_card_number, params[:credit_card_number], :class => "field", :disabled => true %>
+            </div>
+          </div>
+
+          <div class="clearfix">
+            <%= label_tag :cvv, "Security code (CVV)" %>
+            <div class="input">
+              <%= text_field_tag :cvv, params[:cvv], :class => "small", :disabled => true %>
+            </div>
+          </div>
+
+          <div class="clearfix">
+            <%= label_tag :expiry_date %>
+            <div class="input">
+              <%= date_select "", :expiry_date, {:discard_day => true, :order => [:month, :year], :use_month_numbers => true, :start_year => Date.today.year, :end_year => Date.today.year + 25, :disabled => true}, {:class => "small"} %>
+            </div>
+            <!-- empty -->
+          </div>
+          <span class="note">
+            Your credit card details will be sent directly to our payment processor
+          </span>
+        </div>
+
+        <div class="actions">
+          <%= f.submit((defined?(editing) ? "Update" : "Register"), :class => "btn primary") %>
+        </div>
+      <% end %>
+    </fieldset>
+  </div>
+</div>
