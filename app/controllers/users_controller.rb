@@ -20,7 +20,13 @@ class UsersController < ApplicationController
     @user.errors.add :base, "There was a problem with your credit card"
     @user.stripe_token = nil
     render :action => :new
+  rescue Stripe::CardError => e
+    logger.error e.message
+    @user.errors.add :base, "There was a problem with your credit card"
+    @user.stripe_token = nil
+    render :action => :new
   end
+  
 
   def edit
   end
